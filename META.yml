@@ -15,7 +15,7 @@ name: USB-Descriptor-Device
 provides:
   USB::Descriptor:
     file: lib/USB/Descriptor.pm
-    version: 1
+    version: 2
   USB::Descriptor::Configuration:
     file: lib/USB/Descriptor/Configuration.pm
     version: 1
@@ -40,6 +40,9 @@ provides:
   USB::HID::Descriptor::Report:
     file: lib/USB/HID/Descriptor/Report.pm
     version: 1
+  USB::HID::Report:
+    file: lib/USB/HID/Report.pm
+    version: 1
   USB::HID::Report::Field:
     file: lib/USB/HID/Report/Field.pm
     version: 1
@@ -47,4 +50,4 @@ requires:
   perl: 5.01
 resources:
   license: http://opensource.org/licenses/bsd-license.php
-version: 1
+version: 2

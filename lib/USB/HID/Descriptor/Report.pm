@@ -55,10 +55,6 @@ our %collection_type = (
 
 USB::HID::Descriptor::Report - USB Device Descriptor
 
-=head1 VERSION
-
-Version 1
-
 =head1 SYNOPSIS
 
 Methods for generating USB HID Report Descriptor items
@@ -74,8 +70,9 @@ generating the items that comprise a HID Report Descriptor.
 
 =item tag($tag, $size)
 
-Returns the first byte of an Item corresponding to the tag name $tag and a data
-size of $size. The data bytes must be appended to the returned byte.
+Returns the first byte of an Item corresponding to the tag name C<$tag> and a data
+size of C<$size>. The data bytes must be appended to the returned byte to create
+a complete item.
 
 =item data_size(...)
 
@@ -185,7 +182,7 @@ sub item_type
 
 =head1 WRAPPERS
 
-Wrap calls to C<item()> to make calling code a bit prettier.
+Wrap calls to C<item()> to make the calling code a bit prettier.
 
 =over
 

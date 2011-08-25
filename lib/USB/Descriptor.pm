@@ -4,15 +4,11 @@ use strict;
 use warnings;
 use USB::Descriptor::Device;
 
-our $VERSION = '1';
+our $VERSION = '2';
 
 =head1 NAME
 
 USB::Descriptor - USB Device Descriptor generation tools
-
-=head1 VERSION
-
-Version 1
 
 =head1 SYNOPSIS
 
@@ -38,7 +34,7 @@ collected into a set of string descriptors by the top level
 L<USB::Descriptor::Device> object.
 
 The easiest way to create a new descriptor set is to use the
-C<USB::Descriptor::device()> factory method. It accepts a hash of arguments that
+L<USB::Descriptor::device()> factory method. It accepts a hash of arguments that
 happens to be the same hash expected by L<USB::Descriptor::Device> and returns
 a reference to a new L<USB::Descriptor::Device> object.
 
@@ -73,11 +69,11 @@ L<USB::Descriptor::Endpoint>. Each descriptor object is configured using the
 provided arguments and added to the descriptor tree.
 
 Values for the device descriptor structure can be obtained by calling
-C<$device->bytes>, or by using arrayification ( C<@{$device}> ).
+C<< $device->bytes >>, or by using arrayification ( C<@{$device}> ).
 
     my @bytes = $device->bytes
 
-    or
+or
 
     my @bytes = @{$device};
 
@@ -105,7 +101,7 @@ When calling C<bytes>, or arrayifying a L<USB::Descriptor::Device>, all of the
 child objects are queried for their strings. The resulting strings are
 automatically assigned string indexes and assembled into a string descriptor set.
 The set of assembled strings can be retrieved as an array, in index order, by
-calling C<$device->strings>. The first string in the array is the string that
+calling C<< $device->strings >>. The first string in the array is the string that
 should be returned by the device in response to a request for string ID 1.
 
     my @strings = $device->strings

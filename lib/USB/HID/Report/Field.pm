@@ -10,10 +10,6 @@ our $VERSION = '1';
 
 USB::HID::Report::Field - USB HID Report Field
 
-=head1 VERSION
-
-Version 1
-
 =head1 SYNOPSIS
 
 An object representation of a USB HID Report Field. L<USB::HID::Report::Field>
@@ -228,8 +224,6 @@ sub set_attribute
 =item $field->bits($num_bits)
 
 Sets C<size> to 1 and C<count> to C<$num_bits>. Returns C<count>,
-
-Get/Set the field's B<ReportCount> property.
 
 =item $field->count()
 

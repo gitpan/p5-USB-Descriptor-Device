@@ -51,6 +51,26 @@ our %collection_type = (
     'usage_modifier'	=> 7,
 );
 
+our %usage_pages =
+(
+    'GenericDesktop'	    => 0x01,
+    'SimulationControl'	    => 0x02,
+    'VRControl'		    => 0x03,
+    'SportControl'	    => 0x04,
+    'GameControl'	    => 0x05,
+    'GenericDevice'	    => 0x06,
+    'Keyboard'		    => 0x07,    # Page 7 has 2 names
+    'Keypad'		    => 0x07,
+    'LED'		    => 0x08,
+    'Button'		    => 0x09,
+    'Ordinal'		    => 0x0A,
+    'Consumer'		    => 0x0C,
+    'Digitizers'	    => 0x0D,
+    'Unicode'		    => 0x10,
+    'AlphanumericDisplay'   => 0x14,
+    'MedicalInstrument'	    => 0x40,
+);
+
 =head1 NAME
 
 USB::HID::Descriptor::Report - USB Device Descriptor
@@ -164,7 +184,34 @@ sub item
 	    $data_size = 1 if (0 == $data_size) && ($tag ne 'input');
 	    return (tag($tag, $data_size), $data);
 	}
+	when( 'usage_page' )
+	{
+	    my $page = shift;
+
+	    # Convert UsagePage names into integers
+	    if( exists($usage_pages{$page}) ) # Parameter is a string?
+	    {
+		unshift @_, $usage_pages{$page};
+	    }
+	    else    # Nope
+	    {
+		# Put it back and let it be handled normally
+		unshift @_, $page;
+	    }
+	}
     }
+
+    # Split large data elements into individual bytes
+    my @b;
+    @_ = map {
+	@b = ();
+	do {
+	    push @b, $_ & 0xFF;
+	    $_ >>= 8;
+	} while( data_size($_) > 1 );
+	@b;
+    } @_;
+
     (tag($tag, data_size(@_)), @_);
 }
 

@@ -59,6 +59,10 @@ Constructs and returns a L<USB::HID::Report::Field> configured as a button.
 B<Usage Page> and B<ReportSize> are automatically set and override any
 corresponding arguments. Specify a B<Usage> to set the button number.
 
+Alternatively, a single scalar can be passed to set the button number:
+
+    $button = USB::HID::Report::Field->button(3);	# Button 3
+
 =item $padding = USB::HID::Report::Field->constant($num_bits);
 
 Constructs and returns a L<USB::HID::Report::Field> configured to be used as
@@ -93,6 +97,10 @@ sub new
 
 sub button
 {
+    # If a single scalar was passed, assume it's a button number and pass it
+    #  as the field's Usage
+    push @_, 'usage' => pop(@_) if( 2 == @_ );
+
     my $s = new(@_);
 
     $s->logical_range(0,1);	# Binary
@@ -129,7 +137,7 @@ to avoid repeating items that have been emitted by previous fields.
 
 =cut
 
-sub should_emit
+sub _should_emit
 {
     my ($state, $tag, $value) = @_;
     if( defined($value) )
@@ -140,11 +148,11 @@ sub should_emit
     else { 0 }
 }
 
-sub emit_item
+sub _emit_item
 {
     my ($state, $tag, $value) = @_;
     my $type = USB::HID::Descriptor::Report::item_type($tag);
-    if( should_emit($state->{$type}, $tag, $value) )
+    if( _should_emit($state->{$type}, $tag, $value) )
     {
 	$state->{$type}{$tag} = $value;
 	USB::HID::Descriptor::Report::item($tag, $value);
@@ -157,11 +165,11 @@ sub bytes
     my ($s, $state) = @_;
 
     (
-	emit_item($state, 'logical_minimum', $s->logical_min),
-	emit_item($state, 'logical_maximum', $s->logical_max),
-	emit_item($state, 'report_count', $s->count),
-	emit_item($state, 'report_size', $s->size),
-	emit_item($state, 'usage', $s->usage),
+	_emit_item($state, 'logical_minimum', $s->logical_min),
+	_emit_item($state, 'logical_maximum', $s->logical_max),
+	_emit_item($state, 'report_count', $s->count),
+	_emit_item($state, 'report_size', $s->size),
+	_emit_item($state, 'usage', $s->usage),
 	USB::HID::Descriptor::Report::item($state->{'main'}, $s->attributes),
     )
 }
@@ -169,7 +177,14 @@ sub bytes
 =head1 MAIN ITEM ATTRIBUTES
 
 HID report B<Main Item>s have a number of attributes that can be set. Anything
-that isn't explicitly set defaults to 0.
+that isn't explicitly set defaults to 0. These attributes correspond to the
+names of the bits of the "Main Items" specified on page 28 of the
+L<Device Class Definition for Human Interface Devices Version 1.11|http://www.usb.org/developers/devclass_docs/HID1_11.pdf>.
+
+The attribute names accepted by C<set_attribute> are:
+
+    constant variable relative wrap nonlinear noprefered null volatile buffered
+    data array absolute nowrap linear preferred nonull nonvolatile bitfield
 
 =over
 
@@ -274,7 +289,7 @@ Get/Set both C<usage_min> and C<usage_max>.
 sub page
 {
     my $s = shift;
-    $s->{'page'} = int(shift) & 0xFFFF if scalar @_;
+    $s->{'page'} = shift if scalar @_;
     $s->{'page'};
 }
 

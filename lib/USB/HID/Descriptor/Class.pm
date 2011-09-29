@@ -52,9 +52,10 @@ sub new
 
     # Set defaults
     my $self = {
-        'bcdHID'	    => 0x0110,	# HID 1.1.0
+        'bcdHID'	    => 0x01B0,	# HID 1.11.0
 	'bCountryCode'	    => 0,	# Non-localized
-	'version'	    => [1,1,0],	# HID 1.1.0
+	'page'		    => 0,	# Undefined
+	'version'	    => [1,11,0],	# HID 1.11.0
 	'reports'	    => [],
 	'usage'			=> 0,	# Undefined
     };
@@ -107,9 +108,18 @@ sub bytes
 
 =over
 
+=item $class->bcdHID
+
+Direct access to the B<bcdHID> value. Don't use this unless you know what you're
+doing.
+
 =item $class->country
 
 Get/Set the country code for localized hardware (bCountryCode). Defaults to 0.
+
+=item $class->report_bytes
+
+Returns an array of bytes containing the report descriptor.
 
 =item $class->reports
 
@@ -130,7 +140,7 @@ sub bcdHID
     $s->{'bcdHID'};
 }
 
-sub sanitize_bcd_array
+sub _sanitize_bcd_array
 {
     my @v = @_;
     @v = map(int, @v);			# Force integers
@@ -234,7 +244,7 @@ sub version
 	{
 	    @v = @_;
 	}
-	@v = sanitize_bcd_array(@v);
+	@v = _sanitize_bcd_array(@v);
 
 	$s->{'bcdHID'} = ($v[0] << 8) | ($v[1] << 4) | $v[2];
 	$s->{'version'} = \@v;
@@ -248,7 +258,9 @@ sub version
 
 =item $class->page
 
-Get/Set the B<Usage Page> of the interface's report descriptor.
+Get/Set the B<Usage Page> of the interface's report descriptor. Accepts integer
+values, or any of the B<Usage Page> string constants defined in
+HID/Descriptor/Report.pm.
 
 =item $class->usage
 
@@ -261,7 +273,7 @@ Get/Set the B<Usage> of the interface's report descriptor.
 sub page
 {
     my $s = shift;
-    $s->{'page'} = int(shift) & 0xFFFF if scalar @_;
+    $s->{'page'} = shift if scalar @_;
     $s->{'page'};
 }
 

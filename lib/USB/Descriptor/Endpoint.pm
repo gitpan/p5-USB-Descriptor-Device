@@ -2,6 +2,7 @@ package USB::Descriptor::Endpoint;
 
 use strict;
 use warnings;
+use feature 'switch';
 
 our $VERSION = '1';
 
@@ -107,6 +108,16 @@ sub bytes
 
 =over
 
+=item $interface->address
+
+Direct access to the bEndpointAddress value. Don't use this unless you know what
+you're doing.
+
+=item $interface->attributes
+
+Direct access to the bmAttributes value. Don't use this unless you know what
+you're doing.
+
 =item $interface->direction
 
 Get/Set the endpoint's direction (bEndpointAddress). Pass 'in' for an IN
@@ -164,13 +175,10 @@ sub direction
     if( scalar @_ )
     {
 	my $d = shift;
-	if( $d eq 'in' )
+	given($d)
 	{
-	    $s->{'address'} |= 0x80;	# Set the direction bit for IN
-	}
-	elsif( $d eq 'out' )
-	{
-	    $s->{'address'} &= ~0x80;	# Clear the direction bit for OUT
+	    when('in')	{ $s->{'address'} |= 0x80; }	# Set the direction bit for IN
+	    when('out')	{ $s->{'address'} &= ~0x80; }	# Clear the direction bit for OUT
 	}
     }
     ($s->{'address'} & 0x80) ? 'in' : 'out';
@@ -204,21 +212,12 @@ sub synchronization_type
     {
 	my $a = shift;
 	my $masked = $s->{'attributes'} & ~0x0C;
-	if( $a eq 'none' )
+	given($a)
 	{
-	    $s->{'attributes'} = $masked;
-	}
-	elsif( $a eq 'asynchronous' )
-	{
-	    $s->{'attributes'} = $masked | (0x01 << 2);
-	}
-	elsif( $a eq 'adaptive' )
-	{
-	    $s->{'attributes'} = $masked | (0x02 << 2);
-	}
-	elsif( $a eq 'synchronous' )
-	{
-	    $s->{'attributes'} = $masked | (0x03 << 2);
+	    when('none')	{ $s->{'attributes'} = $masked;	}
+	    when('asynchronous'){ $s->{'attributes'} = $masked | (0x01 << 2); }
+	    when('adaptive' )	{ $s->{'attributes'} = $masked | (0x02 << 2); }
+	    when('synchronous')	{ $s->{'attributes'} = $masked | (0x03 << 2); }
 	}
     }
 
@@ -298,20 +297,20 @@ sub usage_type
 
 # --- String Descriptor support ---
 
-sub index_for_string
+sub _index_for_string
 {
     my ($s, $string) = @_;
-    if( defined($string) and length($string) and defined($s->parent) )
+    if( defined($string) and length($string) and defined($s->_parent) )
     {
-	return $s->parent->index_for_string($string);
+	return $s->_parent->_index_for_string($string);
     }
     return 0;
 }
 
-sub parent
+sub _parent
 {
     my $s = shift;
-    $s->{'parent'} = shift if scalar(@_) && $_[0]->can('index_for_string');
+    $s->{'parent'} = shift if scalar(@_) && $_[0]->can('_index_for_string');
     $s->{'parent'};
 }
 
